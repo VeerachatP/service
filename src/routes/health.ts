@@ -6,13 +6,26 @@ const redis = new RedisService();
 
 router.get('/', async (req, res) => {
   try {
+    // Check Redis connection
     await redis.redis.ping();
-    res.json({ status: 'healthy', redis: 'connected' });
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        redis: 'connected',
+        api: 'running'
+      }
+    });
   } catch (error) {
-    res.status(500).json({
+    console.error('Health check failed:', error);
+    res.status(503).json({
       status: 'unhealthy',
-      redis: 'disconnected',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      timestamp: new Date().toISOString(),
+      services: {
+        redis: error instanceof Error ? error.message : 'disconnected',
+        api: 'running'
+      }
     });
   }
 });
