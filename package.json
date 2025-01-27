@@ -11,7 +11,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "client:dev": "cd client && npm start",
-    "client:build": "cd client && npm run build"
+    "client:build": "cd client && npm run build",
+    "postinstall": "npm install @types/express @types/node @types/ioredis @types/bcrypt --save-dev"
   },
   "engines": {
     "node": ">=16.0.0"

@@ -1,7 +1,7 @@
-import { PRICING } from 'src/config/constants';
+import { PRICING } from '../config/constants';
 import Omise from 'omise';
-import { PromoCodeService } from 'src/services/promoCode';
-import { config } from 'src/config/env';
+import { PromoCodeService } from './promoCode';
+import { config } from '../config/env';
 
 interface PaymentDetails {
   amount: number;

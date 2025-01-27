@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { PaymentService } from 'src/services/payment';
-import { RedisService } from 'src/services/redis';
-import { LIMITS } from 'src/config/constants';
+import { PaymentService } from '../services/payment';
+import { RedisService } from '../services/redis';
+import { LIMITS } from '../config/constants';
 
 export class UpgradeController {
   private paymentService: PaymentService;

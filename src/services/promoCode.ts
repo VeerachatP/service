@@ -1,5 +1,5 @@
-import { RedisService } from 'src/services/redis';
-import { PRICING } from 'src/config/constants';
+import { RedisService } from './redis';
+import { PRICING } from '../config/constants';
 
 interface PromoCodeDetails {
   code: string;

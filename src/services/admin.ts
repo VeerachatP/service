@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { RedisService } from './redis';
-import { config } from 'src/config/env';
+import { config } from '../config/env';
 
 interface AdminUser {
   id: string;

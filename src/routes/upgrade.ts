@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { UpgradeController } from 'src/controllers/upgradeController';
-import { ipCheckMiddleware } from 'src/middleware/ipCheck';
+import { UpgradeController } from '../controllers/upgradeController';
+import { ipCheckMiddleware } from '../middleware/ipCheck';
 
 const router = Router();
 const upgradeController = new UpgradeController();
