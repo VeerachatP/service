@@ -1,15 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 
 export const ipCheckMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const ip = req.ip || req.socket.remoteAddress;
+  const clientIp = req.ip || req.socket.remoteAddress;
   
-  if (!ip) {
+  if (!clientIp) {
     return res.status(400).json({
       success: false,
       error: 'Could not determine IP address'
     });
   }
 
-  req.ip = ip;
+  // Use Object.defineProperty to set ip
+  Object.defineProperty(req, 'ip', {
+    value: clientIp,
+    writable: true,
+    configurable: true
+  });
+
   next();
 }; 

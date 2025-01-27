@@ -14,14 +14,21 @@ export class UpgradeController {
 
   upgradeUser = async (req: Request, res: Response) => {
     const { promoCode } = req.body;
-    const ip = req.ip;
+    const clientIp = req.ip;
+
+    if (!clientIp) {
+      return res.status(400).json({
+        success: false,
+        error: 'IP address is required'
+      });
+    }
 
     try {
       const paymentResult = await this.paymentService.processPayment({
         amount: 3.99,
         currency: 'USD',
         promoCode,
-        ip
+        ip: clientIp
       });
 
       if (!paymentResult.success) {
@@ -31,7 +38,7 @@ export class UpgradeController {
         });
       }
 
-      await this.redisService.upgradeToPro(ip);
+      await this.redisService.upgradeToPro(clientIp);
 
       res.json({
         success: true,
@@ -47,10 +54,17 @@ export class UpgradeController {
   };
 
   checkProStatus = async (req: Request, res: Response) => {
-    const ip = req.ip;
+    const clientIp = req.ip;
+
+    if (!clientIp) {
+      return res.status(400).json({
+        success: false,
+        error: 'IP address is required'
+      });
+    }
 
     try {
-      const status = await this.redisService.getProStatus(ip);
+      const status = await this.redisService.getProStatus(clientIp);
       res.json(status);
     } catch (error) {
       res.status(500).json({
