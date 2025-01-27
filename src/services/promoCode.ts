@@ -1,2 +1,4 @@
 import { RedisService } from 'src/services/redis';
-import { PRICING } from 'src/config/constants'; 
+import { PRICING } from 'src/config/constants';
+
+export { PromoCodeService }; 

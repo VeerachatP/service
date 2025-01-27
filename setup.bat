@@ -36,6 +36,7 @@ call npm install @types/express @types/cors @types/node @types/dotenv
 call npm install ioredis @types/ioredis
 call npm install jsonwebtoken @types/jsonwebtoken bcrypt @types/bcrypt
 call npm install express-validator @types/express-validator
+call npm install omise @types/omise
 REM Testing dependencies
 call npm install --save-dev jest @types/jest ts-jest supertest @types/supertest @types/node
 REM Add types for test environment

@@ -11,7 +11,7 @@ class RedisService {
   public redis: Redis;
 
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL);
+    this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
   }
   // ... rest of the code
 }
