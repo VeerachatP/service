@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { usePayment } from '../contexts/PaymentContext';
-import { PRICING } from '../config/constants';
+import { usePayment } from 'src/contexts/PaymentContext';
+import { PRICING } from 'src/config/constants';
 
 interface PaymentFormProps {
   onSuccess: () => void;

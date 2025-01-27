@@ -2,8 +2,6 @@
 echo Setting up the project...
 
 REM Create project structure
-mkdir baby-name-service
-cd baby-name-service
 
 REM Initialize frontend
 echo Installing frontend...
@@ -17,11 +15,21 @@ REM Initialize Tailwind
 call npx tailwindcss init -p
 cd ..
 
-REM Initialize backend
+REM Initialize backend in root
 echo Installing backend...
-mkdir server
-cd server
 call npm init -y
+
+REM Create backend directory structure
+mkdir src
+mkdir src\config
+mkdir src\controllers
+mkdir src\middleware
+mkdir src\routes
+mkdir src\services
+mkdir src\test
+mkdir src\__tests__
+mkdir dist
+
 REM Install backend dependencies
 call npm install express cors redis openai dotenv typescript ts-node
 call npm install @types/express @types/cors @types/node @types/dotenv
@@ -49,10 +57,7 @@ echo OMISE_SECRET_KEY=your-omise-secret-key>> .env
 echo OPENAI_API_KEY=your-openai-api-key>> .env
 
 REM Install all dependencies
-cd ..
-echo Installing all dependencies...
-cd client && call npm install
-cd ../server && call npm install
+cd .. && call npm install
 cd ..
 
 echo.

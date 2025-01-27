@@ -1,0 +1,48 @@
+{
+  "name": "baby-name-service",
+  "version": "1.0.0",
+  "description": "Baby Name Generator Service",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "dev": "nodemon src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "client:dev": "cd client && npm start",
+    "client:build": "cd client && npm run build"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "cors": "^2.8.5",
+    "redis": "^4.0.0",
+    "openai": "^4.0.0",
+    "dotenv": "^16.0.0",
+    "typescript": "^4.9.0",
+    "ts-node": "^10.9.0",
+    "ioredis": "^5.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcrypt": "^5.0.0",
+    "express-validator": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/cors": "^2.8.12",
+    "@types/node": "^18.0.0",
+    "@types/dotenv": "^8.2.0",
+    "@types/ioredis": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/bcrypt": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "supertest": "^6.0.0",
+    "@types/supertest": "^2.0.0",
+    "@jest/types": "^29.0.0",
+    "@types/jest-environment-node": "^29.0.0",
+    "nodemon": "^2.0.0"
+  }
+} 
