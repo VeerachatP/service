@@ -14,6 +14,9 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
+# Create necessary directories
+RUN mkdir -p dist/config
+
 # Expose port
 EXPOSE 3001
 

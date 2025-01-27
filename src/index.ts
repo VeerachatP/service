@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { config } from 'src/config/env';
-import upgradeRoutes from 'src/routes/upgrade';
-import promoRoutes from 'src/routes/promo';
-import healthRoutes from 'src/routes/health';
+import { config } from './config/env';
+import upgradeRoutes from './routes/upgrade';
+import promoRoutes from './routes/promo';
+import healthRoutes from './routes/health';
 
 // Load environment variables
 dotenv.config();

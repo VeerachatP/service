@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && npm run copy-files",
+    "copy-files": "cp -r src/config/*.json dist/config/ || true",
     "dev": "nodemon src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",

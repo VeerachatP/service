@@ -1,4 +1,4 @@
-import { RedisService } from 'src/services/redis';
+import { RedisService } from '../services/redis';
 
 export const waitForRedis = async (maxRetries = 5, retryInterval = 5000): Promise<boolean> => {
   const redis = new RedisService();
