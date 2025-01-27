@@ -28,6 +28,7 @@ mkdir src\routes
 mkdir src\services
 mkdir src\test
 mkdir src\__tests__
+mkdir src\types
 mkdir dist
 
 REM Install backend dependencies
@@ -36,7 +37,7 @@ call npm install @types/express @types/cors @types/node @types/dotenv
 call npm install ioredis @types/ioredis
 call npm install jsonwebtoken @types/jsonwebtoken bcrypt @types/bcrypt
 call npm install express-validator @types/express-validator
-call npm install omise @types/omise
+call npm install omise
 REM Testing dependencies
 call npm install --save-dev jest @types/jest ts-jest supertest @types/supertest @types/node
 REM Add types for test environment
