@@ -42,7 +42,7 @@
     "supertest": "^6.0.0",
     "@types/supertest": "^2.0.0",
     "@jest/types": "^29.0.0",
-    "@types/jest-environment-node": "^29.0.0",
+    "@jest/environment": "^29.0.0",
     "nodemon": "^2.0.0"
   }
 } 

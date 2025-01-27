@@ -39,7 +39,7 @@ call npm install express-validator @types/express-validator
 REM Testing dependencies
 call npm install --save-dev jest @types/jest ts-jest supertest @types/supertest @types/node
 REM Add types for test environment
-call npm install --save-dev @jest/types @types/jest-environment-node
+call npm install --save-dev @jest/types @jest/environment
 
 REM Initialize TypeScript config
 call npx tsc --init
