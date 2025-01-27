@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import { LIMITS } from 'src/config/constants';
+import { LIMITS } from '../config/constants';
 
 interface ProStatus {
   isPro: boolean;
