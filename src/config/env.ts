@@ -6,8 +6,6 @@ interface Config {
   OPENAI_API_KEY: string;
   PORT: number;
   NODE_ENV: 'development' | 'production' | 'test';
-  CLIENT_URL: string;
-  WEBHOOK_SECRET: string;
 }
 
 export const config: Config = {
@@ -17,9 +15,5 @@ export const config: Config = {
   OMISE_SECRET_KEY: process.env.OMISE_SECRET_KEY || '',
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   PORT: parseInt(process.env.PORT || '3001', 10),
-  NODE_ENV: (process.env.NODE_ENV as Config['NODE_ENV']) || 'development',
-  CLIENT_URL: process.env.NODE_ENV === 'production'
-    ? 'https://service-production-ddb7.up.railway.app'
-    : 'http://localhost:3001',
-  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || 'webhook-secret-key'
+  NODE_ENV: (process.env.NODE_ENV as Config['NODE_ENV']) || 'development'
 }; 

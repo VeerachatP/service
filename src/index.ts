@@ -9,33 +9,19 @@ import upgradeRoutes from './routes/upgrade';
 import promoRoutes from './routes/promo';
 import healthRoutes from './routes/health';
 import nameRoutes from './routes/names';
-import webhookRoutes from './routes/webhook';
 import { waitForRedis } from './utils/checkRedis';
-import { nonceMiddleware } from './middleware/nonce';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 
-// Apply nonce middleware before other middleware
-app.use(nonceMiddleware);
-
 // Middleware
 app.use(cors({
-  origin: '*',
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'Origin', 
-    'Accept',
-    'omise-key',
-    'omise-signature',
-    'Access-Control-Allow-Origin'
-  ],
-  exposedHeaders: ['omise-key', 'omise-signature']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
 }));
 app.use(express.json());
 
@@ -73,7 +59,6 @@ apiRouter.use('/upgrade', upgradeRoutes);
 apiRouter.use('/promo', promoRoutes);
 apiRouter.use('/health', healthRoutes);
 apiRouter.use('/names', nameRoutes);
-apiRouter.use('/webhook', webhookRoutes);
 app.use('/api/v1', apiRouter);
 
 // Add debug logging

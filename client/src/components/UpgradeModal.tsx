@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 declare global {
   interface Window {
-    OmiseCard: any;
+    Omise: any;
   }
 }
 
@@ -17,58 +17,54 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (window.OmiseCard) {
-      window.OmiseCard.configure({
-        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
-        frameLabel: 'Baby Name Generator Pro',
-        submitLabel: 'Pay $3.99',
-        currency: 'USD',
-        buttonLabel: 'Pay $3.99',
-        amount: 399,
-        defaultPaymentMethod: 'credit_card',
-        otherPaymentMethods: []
-      });
-    }
-  }, []);
+  const handleUpgrade = async (token: string) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  const handleOmiseCard = () => {
-    setLoading(true);
+      const sessionId = localStorage.getItem('sessionId');
+      if (!sessionId) {
+        throw new Error('Session not found');
+      }
+
+      const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/upgrade', {
+        token,
+        sessionId
+      });
+
+      if (response.data.success) {
+        onSuccess();
+      } else {
+        setError(response.data.error);
+      }
+    } catch (err) {
+      setError('Payment failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
 
-    window.OmiseCard.open({
-      frameDescription: 'Monthly Pro Subscription',
-      onCreateTokenSuccess: async (token: string) => {
-        try {
-          const sessionId = localStorage.getItem('sessionId');
-          if (!sessionId) {
-            throw new Error('Session not found');
-          }
+    try {
+      const form = e.target as HTMLFormElement;
+      const card = {
+        name: form.name.value,
+        number: form.number.value,
+        expiration_month: form.month.value,
+        expiration_year: form.year.value,
+        security_code: form.cvc.value
+      };
 
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/upgrade`, {
-            token,
-            sessionId,
-            return_uri: `${window.location.origin}/upgrade/complete`
-          });
-
-          if (response.data.authorizeUri) {
-            // Redirect to 3D Secure authorization page
-            window.location.href = response.data.authorizeUri;
-          } else if (response.data.success) {
-            onSuccess();
-          } else {
-            setError(response.data.error || 'Payment failed');
-            setLoading(false);
-          }
-        } catch (err) {
-          setError('Payment failed. Please try again.');
-          setLoading(false);
-        }
-      },
-      onFormClosed: () => {
-        setLoading(false);
-      }
-    });
+      window.Omise.setPublicKey(process.env.REACT_APP_OMISE_PUBLIC_KEY!);
+      
+      const { token } = await window.Omise.createToken('card', card);
+      await handleUpgrade(token);
+    } catch (err) {
+      setError('Invalid card details');
+    }
   };
 
   if (!isOpen) return null;
@@ -86,35 +82,90 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
             <li>Advanced name meanings</li>
             <li>Cultural insights</li>
           </ul>
-          <p className="mt-4 text-2xl font-bold">$3.99/month</p>
+          <p className="mt-4 text-2xl font-bold">$9.99/month</p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Card Holder Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            />
           </div>
-        )}
 
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleOmiseCard}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : 'Upgrade Now'}
-          </button>
-        </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Card Number
+            </label>
+            <input
+              type="text"
+              name="number"
+              required
+              pattern="[0-9]{16}"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            />
+          </div>
 
-        <form id="checkoutForm" method="POST" action="/check.php" className="hidden">
-          <input type="hidden" name="omiseToken" />
-          <input type="hidden" name="omiseSource" />
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Month</label>
+              <input
+                type="text"
+                name="month"
+                required
+                pattern="[0-9]{2}"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Year</label>
+              <input
+                type="text"
+                name="year"
+                required
+                pattern="[0-9]{2}"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">CVC</label>
+              <input
+                type="text"
+                name="cvc"
+                required
+                pattern="[0-9]{3,4}"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? 'Processing...' : 'Upgrade Now'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

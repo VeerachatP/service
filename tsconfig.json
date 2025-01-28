@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2017",
     "module": "commonjs",
     "lib": ["es6", "dom", "es2017"],
     "allowJs": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "outDir": "dist",
+    "rootDir": "src",
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
@@ -16,14 +16,6 @@
     "typeRoots": [
       "./node_modules/@types",
       "./src/types"
-    ],
-    "types": [
-      "node",
-      "express",
-      "cors",
-      "bcrypt",
-      "jsonwebtoken",
-      "uuid"
     ]
   },
   "include": [
@@ -33,7 +25,6 @@
     "node_modules",
     "client",
     "**/*.spec.ts",
-    "dist",
-    "**/*.test.ts"
+    "dist"
   ]
 } 
