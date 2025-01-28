@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 declare global {
   interface Window {
+    Omise: any;
     OmiseCard: any;
   }
 }
@@ -17,11 +18,39 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (window.Omise) {
+      window.Omise.setPublicKey(process.env.REACT_APP_OMISE_PUBLIC_KEY!);
+    }
+  }, []);
+
+  const openOmiseForm = () => {
+    if (!window.Omise) {
+      setError('Payment system is not available');
+      return;
+    }
+
+    setLoading(true);
+
+    window.Omise.createToken(
+      'card',
+      {
+        amount: 399, // $3.99 in cents
+        currency: 'USD',
+      },
+      function(statusCode: number, response: any) {
+        if (statusCode === 200) {
+          handleUpgrade(response.id);
+        } else {
+          setError(response.message);
+          setLoading(false);
+        }
+      }
+    );
+  };
+
   const handleUpgrade = async (token: string) => {
     try {
-      setLoading(true);
-      setError(null);
-
       const sessionId = localStorage.getItem('sessionId');
       if (!sessionId) {
         throw new Error('Session not found');
@@ -42,38 +71,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
     } finally {
       setLoading(false);
     }
-  };
-
-  const openOmiseForm = () => {
-    if (!window.OmiseCard) {
-      setError('Payment system is not available');
-      return;
-    }
-
-    setLoading(true);
-
-    // Initialize Omise
-    window.OmiseCard.configure({
-      publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
-      image: 'https://via.placeholder.com/128',
-      frameLabel: 'Baby Name Generator Pro',
-      submitLabel: 'Pay $3.99',
-      currency: 'USD',
-      buttonLabel: 'Pay $3.99',
-      location: 'no',
-      defaultPaymentMethod: 'credit_card'
-    });
-
-    window.OmiseCard.open({
-      amount: 399,
-      frameDescription: 'Monthly Pro Subscription',
-      onCreateTokenSuccess: (token: string) => {
-        handleUpgrade(token);
-      },
-      onFormClosed: () => {
-        setLoading(false);
-      },
-    });
   };
 
   if (!isOpen) return null;
@@ -117,11 +114,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
           </button>
         </div>
 
-        {/* Add hidden form for Omise */}
-        <form id="omise-form" method="POST" className="hidden">
-          <input type="hidden" name="omiseToken" />
-          <input type="hidden" name="omiseSource" />
-        </form>
+        {/* Omise form container */}
+        <div id="omise-form"></div>
       </div>
     </div>
   );
