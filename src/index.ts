@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import { config } from './config/env';
 import { RedisService } from './services/redis';
 import upgradeRoutes from './routes/upgrade';
@@ -54,6 +55,14 @@ app.get('/health', async (req, res) => {
 app.use('/api/v1/upgrade', upgradeRoutes);
 app.use('/api/v1/promo', promoRoutes);
 app.use('/api/v1/health', healthRoutes);
+
+// Serve static files from React app
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
 
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {

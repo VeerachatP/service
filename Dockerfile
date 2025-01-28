@@ -8,6 +8,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install && npm run postinstall
 
+# Copy and build client
+COPY client/package*.json ./client/
+RUN cd client && npm install
+COPY client ./client/
+RUN cd client && npm run build
+
 # Bundle app source
 COPY . .
 
