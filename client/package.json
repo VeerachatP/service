@@ -22,6 +22,7 @@
     "@types/node": "^16.18.68",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
     "postcss-import": "^15.1.0",
