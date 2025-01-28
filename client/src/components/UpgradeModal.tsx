@@ -3,7 +3,7 @@ import axios from 'axios';
 
 declare global {
   interface Window {
-    Omise: any;
+    OmiseCard: any;
   }
 }
 
@@ -17,61 +17,57 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleUpgrade = async (token: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const sessionId = localStorage.getItem('sessionId');
-      if (!sessionId) {
-        throw new Error('Session not found');
-      }
-
-      const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/upgrade', {
-        token,
-        sessionId
+  React.useEffect(() => {
+    if (isOpen) {
+      window.OmiseCard.configure({
+        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY
       });
-
-      if (response.data.success) {
-        onSuccess();
-      } else {
-        setError(response.data.error);
-      }
-    } catch (err) {
-      setError('Payment failed. Please try again.');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
 
     try {
-      const form = e.target as HTMLFormElement;
-      const formElements = form.elements as HTMLFormControlsCollection & {
-        name: HTMLInputElement;
-        number: HTMLInputElement;
-        month: HTMLInputElement;
-        year: HTMLInputElement;
-        cvc: HTMLInputElement;
-      };
-      
-      const card = {
-        name: formElements.name.value,
-        number: formElements.number.value,
-        expiration_month: formElements.month.value,
-        expiration_year: formElements.year.value,
-        security_code: formElements.cvc.value
-      };
+      const sessionId = localStorage.getItem('sessionId');
+      if (!sessionId) throw new Error('Session not found');
 
-      window.Omise.setPublicKey(process.env.REACT_APP_OMISE_PUBLIC_KEY!);
-      
-      const { token } = await window.Omise.createToken('card', card);
-      await handleUpgrade(token);
+      window.OmiseCard.open({
+        amount: 999, // $9.99 in cents
+        currency: 'USD',
+        frameLabel: 'Baby Name Generator Pro',
+        frameDescription: 'Upgrade to Pro for unlimited generations',
+        defaultPaymentMethod: 'credit_card',
+        onCreateTokenSuccess: async (token: string) => {
+          try {
+            const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/upgrade', {
+              token,
+              sessionId
+            });
+
+            if (response.data.success) {
+              onSuccess();
+            } else if (response.data.authorizeUri) {
+              // Redirect to 3D Secure authentication
+              window.location.href = response.data.authorizeUri;
+            } else {
+              setError(response.data.error || 'Payment failed');
+            }
+          } catch (err) {
+            setError('Payment processing failed');
+          } finally {
+            setLoading(false);
+          }
+        },
+        onFormClosed: () => {
+          setLoading(false);
+        }
+      });
     } catch (err) {
-      setError('Invalid card details');
+      setError('Failed to initialize payment');
+      setLoading(false);
     }
   };
 
@@ -93,88 +89,27 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
           <p className="mt-4 text-2xl font-bold">$9.99/month</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Card Holder Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            />
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Card Number
-            </label>
-            <input
-              type="text"
-              name="number"
-              required
-              pattern="[0-9]{16}"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Month</label>
-              <input
-                type="text"
-                name="month"
-                required
-                pattern="[0-9]{2}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Year</label>
-              <input
-                type="text"
-                name="year"
-                required
-                pattern="[0-9]{2}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">CVC</label>
-              <input
-                type="text"
-                name="cvc"
-                required
-                pattern="[0-9]{3,4}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : 'Upgrade Now'}
-            </button>
-          </div>
-        </form>
+        <div className="flex justify-end space-x-4">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handlePayment}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : 'Upgrade Now'}
+          </button>
+        </div>
       </div>
     </div>
   );
