@@ -1,6 +1,7 @@
 import express from 'express';
 import { OpenAIService } from '../services/openai';
 import { SessionService } from '../services/session';
+import { validateSessionId } from '../utils/session';
 
 const router = express.Router();
 const openAIService = new OpenAIService();
@@ -8,46 +9,67 @@ const sessionService = new SessionService();
 
 router.post('/generate', async (req, res) => {
   try {
-    const { sessionId } = req.body;
-    if (!sessionId) {
+    const { sessionId, gender, style, origin, startsWith, count } = req.body;
+
+    if (!sessionId || !validateSessionId(sessionId)) {
       return res.status(400).json({
         success: false,
-        error: 'Session ID is required'
+        error: 'Invalid session ID'
       });
     }
 
+    // Initialize session if new
+    await sessionService.initSession(sessionId);
+
+    // Check remaining generations
     const remaining = await sessionService.getRemainingGenerations(sessionId);
     if (remaining <= 0) {
+      const status = await sessionService.getSessionStatus(sessionId);
       return res.status(403).json({
         success: false,
         error: 'Generation limit reached',
-        upgrade: true
+        data: {
+          remaining: 0,
+          resetIn: status.expiresIn,
+          upgrade: true
+        }
       });
     }
 
+    // Increment usage and generate names
     const canGenerate = await sessionService.incrementGenerations(sessionId);
     if (!canGenerate) {
       return res.status(403).json({
         success: false,
-        error: 'Generation limit reached',
-        upgrade: true
+        error: 'Failed to increment generation count'
       });
     }
 
-    const names = await openAIService.generateNames(req.body);
+    const names = await openAIService.generateNames({
+      sessionId,
+      gender,
+      style,
+      origin,
+      startsWith,
+      count
+    });
+
+    const status = await sessionService.getSessionStatus(sessionId);
     
     res.json({
       success: true,
       data: {
         names,
-        remaining: remaining - 1
+        remaining: status.remaining,
+        resetIn: status.expiresIn,
+        isPremium: status.isPremium
       }
     });
   } catch (error) {
     console.error('Name generation error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to generate names'
+      error: error instanceof Error ? error.message : 'Failed to generate names'
     });
   }
 });
