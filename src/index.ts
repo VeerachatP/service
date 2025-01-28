@@ -9,6 +9,7 @@ import upgradeRoutes from './routes/upgrade';
 import promoRoutes from './routes/promo';
 import healthRoutes from './routes/health';
 import nameRoutes from './routes/names';
+import webhookRoutes from './routes/webhook';
 import { waitForRedis } from './utils/checkRedis';
 
 // Load environment variables
@@ -66,6 +67,7 @@ apiRouter.use('/upgrade', upgradeRoutes);
 apiRouter.use('/promo', promoRoutes);
 apiRouter.use('/health', healthRoutes);
 apiRouter.use('/names', nameRoutes);
+apiRouter.use('/webhook', webhookRoutes);
 app.use('/api/v1', apiRouter);
 
 // Add debug logging

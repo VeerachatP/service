@@ -3,7 +3,6 @@ import axios from 'axios';
 
 declare global {
   interface Window {
-    Omise: any;
     OmiseCard: any;
   }
 }
@@ -19,58 +18,74 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (window.Omise) {
-      window.Omise.setPublicKey(process.env.REACT_APP_OMISE_PUBLIC_KEY!);
+    // Initialize OmiseCard with configuration
+    if (window.OmiseCard) {
+      window.OmiseCard.configure({
+        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
+        image: 'https://via.placeholder.com/128',
+        frameLabel: 'Baby Name Generator Pro',
+        submitLabel: 'Pay $3.99',
+        currency: 'USD',
+        buttonLabel: 'Pay $3.99',
+        location: 'no',
+        defaultPaymentMethod: 'credit_card',
+        amount: 399, // $3.99 in cents
+      });
     }
   }, []);
 
-  const openOmiseForm = () => {
-    if (!window.Omise) {
-      setError('Payment system is not available');
-      return;
-    }
-
+  const handleOmiseCard = () => {
     setLoading(true);
+    setError(null);
 
-    window.Omise.createToken(
-      'card',
-      {
-        amount: 399, // $3.99 in cents
-        currency: 'USD',
-      },
-      function(statusCode: number, response: any) {
-        if (statusCode === 200) {
-          handleUpgrade(response.id);
-        } else {
-          setError(response.message);
+    // Create form for handling 3D Secure
+    const form = document.createElement('form');
+    form.id = 'omiseForm';
+    form.method = 'POST';
+    form.style.display = 'none';
+    document.body.appendChild(form);
+
+    // Configure the card form
+    window.OmiseCard.configure({
+      defaultPaymentMethod: 'credit_card',
+      otherPaymentMethods: [],
+    });
+
+    // Initialize the card form
+    window.OmiseCard.open({
+      amount: 399,
+      currency: 'USD',
+      frameDescription: 'Baby Name Generator Pro Subscription',
+      submitFormTarget: '#omiseForm',
+      onCreateTokenSuccess: async (token: string) => {
+        try {
+          const sessionId = localStorage.getItem('sessionId');
+          if (!sessionId) {
+            throw new Error('Session not found');
+          }
+
+          const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/upgrade', {
+            token,
+            sessionId,
+            return_uri: window.location.origin + '/upgrade/complete'
+          });
+
+          // Handle 3D Secure redirect
+          if (response.data.authorizeUri) {
+            window.location.href = response.data.authorizeUri;
+          } else if (response.data.success) {
+            onSuccess();
+          }
+        } catch (err) {
+          setError('Payment failed. Please try again.');
           setLoading(false);
         }
-      }
-    );
-  };
-
-  const handleUpgrade = async (token: string) => {
-    try {
-      const sessionId = localStorage.getItem('sessionId');
-      if (!sessionId) {
-        throw new Error('Session not found');
-      }
-
-      const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/upgrade', {
-        token,
-        sessionId
-      });
-
-      if (response.data.success) {
-        onSuccess();
-      } else {
-        setError(response.data.error);
-      }
-    } catch (err) {
-      setError('Payment failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+      },
+      onFormClosed: () => {
+        setLoading(false);
+        document.body.removeChild(form);
+      },
+    });
   };
 
   if (!isOpen) return null;
@@ -106,16 +121,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
             Cancel
           </button>
           <button
-            onClick={openOmiseForm}
+            onClick={handleOmiseCard}
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Upgrade Now'}
           </button>
         </div>
-
-        {/* Omise form container */}
-        <div id="omise-form"></div>
       </div>
     </div>
   );

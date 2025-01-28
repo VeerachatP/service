@@ -7,6 +7,7 @@ interface Config {
   PORT: number;
   NODE_ENV: 'development' | 'production' | 'test';
   CLIENT_URL: string;
+  WEBHOOK_SECRET: string;
 }
 
 export const config: Config = {
@@ -19,5 +20,6 @@ export const config: Config = {
   NODE_ENV: (process.env.NODE_ENV as Config['NODE_ENV']) || 'development',
   CLIENT_URL: process.env.NODE_ENV === 'production'
     ? 'https://service-production-ddb7.up.railway.app'
-    : 'http://localhost:3001'
+    : 'http://localhost:3001',
+  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || 'webhook-secret-key'
 }; 
