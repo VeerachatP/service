@@ -11,6 +11,7 @@ RUN npm install && npm run postinstall
 # Copy and build client
 COPY client/package*.json ./client/
 RUN cd client && npm install --legacy-peer-deps
+COPY client/tailwind.config.js client/postcss.config.js ./client/
 COPY client ./client/
 RUN cd client && CI=true npm run build
 

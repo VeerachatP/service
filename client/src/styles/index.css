@@ -1,0 +1,31 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Base styles */
+body {
+  margin: 0;
+  font-family: theme('fontFamily.sans');
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: theme('fontFamily.mono');
+}
+
+/* Custom utility classes */
+.btn {
+  padding: theme('spacing.2') theme('spacing.4');
+  border-radius: theme('borderRadius.md');
+  font-weight: theme('fontWeight.medium');
+}
+
+.btn-primary {
+  background-color: theme('colors.blue.600');
+  color: theme('colors.white');
+}
+
+.btn-primary:hover {
+  background-color: theme('colors.blue.700');
+} 
