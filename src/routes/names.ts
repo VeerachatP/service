@@ -34,13 +34,15 @@ router.post('/generate', async (req, res) => {
     const remaining = await sessionService.getRemainingGenerations(sessionId);
     if (remaining <= 0) {
       const status = await sessionService.getSessionStatus(sessionId);
+      const hoursRemaining = Math.ceil(status.expiresIn / 3600);
       return res.status(403).json({
         success: false,
-        error: 'Generation limit reached',
+        error: `You've reached your daily limit of free name generations.`,
         data: {
           remaining: 0,
           resetIn: status.expiresIn,
-          upgrade: true
+          upgrade: true,
+          message: `Upgrade to Pro for unlimited generations! Free tier resets in ${hoursRemaining} hours.`
         }
       });
     }

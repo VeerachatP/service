@@ -45,10 +45,28 @@ export const NameGenerator: React.FC = () => {
         setNames(response.data.data.names);
         setRemaining(response.data.data.remaining);
       } else {
-        setError(response.data.error);
+        if (response.data.data?.upgrade) {
+          setError(
+            `You've reached your daily limit of free generations. 
+             Upgrade to Pro for ${response.data.data.resetIn > 0 
+               ? `unlimited generations! (Free tier resets in ${Math.ceil(response.data.data.resetIn / 3600)} hours)`
+               : 'unlimited generations!'}`
+          );
+        } else {
+          setError(response.data.error);
+        }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate names');
+      if (axios.isAxiosError(err) && err.response?.status === 403) {
+        const resetTime = err.response.data.data?.resetIn || 24 * 60 * 60;
+        const hoursRemaining = Math.ceil(resetTime / 3600);
+        setError(
+          `Daily limit reached! 🌟 Upgrade to Pro for unlimited generations. 
+           Free tier resets in ${hoursRemaining} ${hoursRemaining === 1 ? 'hour' : 'hours'}.`
+        );
+      } else {
+        setError('Something went wrong. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -133,8 +151,15 @@ export const NameGenerator: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-          {error}
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-6 flex flex-col items-center">
+          <p className="mb-2">{error}</p>
+          <button
+            onClick={() => window.location.href = '/upgrade'}
+            className="mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-full 
+                     hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all"
+          >
+            Upgrade to Pro 🚀
+          </button>
         </div>
       )}
 
