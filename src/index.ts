@@ -31,7 +31,7 @@ app.use(cors({
     'omise-signature',
     'Access-Control-Allow-Origin'
   ],
-  exposedHeaders: ['omise-key']
+  exposedHeaders: ['omise-key', 'omise-signature']
 }));
 app.use(express.json());
 
