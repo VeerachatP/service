@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta http-equiv="Content-Security-Policy" 
-          content="default-src * data: blob: 'unsafe-inline' 'unsafe-eval';
-                   connect-src * data: blob: 'unsafe-inline';
-                   frame-src * data: blob: 'unsafe-inline';
-                   script-src * data: blob: 'unsafe-inline' 'unsafe-eval';
-                   style-src * data: blob: 'unsafe-inline';" />
+          content="default-src 'self' https://*.omise.co;
+                   connect-src 'self' https://*.omise.co https://api.omise.co;
+                   frame-src 'self' https://*.omise.co;
+                   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.omise.co;
+                   style-src 'self' 'unsafe-inline' https://*.omise.co;
+                   img-src 'self' data: https://*.omise.co https://via.placeholder.com;" />
     <meta
       name="description"
       content="Baby Name Generator"

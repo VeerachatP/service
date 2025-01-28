@@ -28,8 +28,10 @@ app.use(cors({
     'Origin', 
     'Accept',
     'omise-key',
+    'omise-signature',
     'Access-Control-Allow-Origin'
-  ]
+  ],
+  exposedHeaders: ['omise-key']
 }));
 app.use(express.json());
 

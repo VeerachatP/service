@@ -22,12 +22,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
     if (window.OmiseCard) {
       window.OmiseCard.configure({
         publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
-        image: 'https://via.placeholder.com/128',
+        image: '/logo192.png',
         frameLabel: 'Baby Name Generator Pro',
         submitLabel: 'Pay $3.99',
         currency: 'USD',
         buttonLabel: 'Pay $3.99',
-        location: 'no',
+        location: 'yes',
         defaultPaymentMethod: 'credit_card',
         amount: 399, // $3.99 in cents
       });
@@ -38,17 +38,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
     setLoading(true);
     setError(null);
 
-    // Create form for handling 3D Secure
-    const form = document.createElement('form');
-    form.id = 'omiseForm';
-    form.method = 'POST';
-    form.style.display = 'none';
-    document.body.appendChild(form);
-
     // Configure the card form
     window.OmiseCard.configure({
       defaultPaymentMethod: 'credit_card',
       otherPaymentMethods: [],
+      submitFormTarget: '#omiseCardForm'
     });
 
     // Initialize the card form
@@ -56,7 +50,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
       amount: 399,
       currency: 'USD',
       frameDescription: 'Baby Name Generator Pro Subscription',
-      submitFormTarget: '#omiseForm',
       onCreateTokenSuccess: async (token: string) => {
         try {
           const sessionId = localStorage.getItem('sessionId');
@@ -64,7 +57,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
             throw new Error('Session not found');
           }
 
-          const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/upgrade', {
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/upgrade`, {
             token,
             sessionId,
             return_uri: window.location.origin + '/upgrade/complete'
@@ -83,7 +76,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
       },
       onFormClosed: () => {
         setLoading(false);
-        document.body.removeChild(form);
       },
     });
   };
@@ -128,6 +120,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
             {loading ? 'Processing...' : 'Upgrade Now'}
           </button>
         </div>
+
+        <form id="omiseCardForm" method="POST" className="hidden">
+          <input type="hidden" name="omiseToken" />
+          <input type="hidden" name="omiseSource" />
+        </form>
       </div>
     </div>
   );

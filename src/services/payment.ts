@@ -72,21 +72,26 @@ export class PaymentService {
 
   async createCharge(params: ChargeParams) {
     try {
+      if (!params.token) {
+        throw new Error('Payment token is required');
+      }
+
       const charge = await this.omise.charges.create({
         amount: params.amount,
         currency: params.currency,
         card: params.token,
         description: params.description,
         metadata: params.metadata,
-        capture: true,
+        capture: false,
         return_uri: process.env.NODE_ENV === 'production'
           ? 'https://service-production-ddb7.up.railway.app/upgrade/complete'
           : 'http://localhost:3001/upgrade/complete'
       });
 
+      console.log('Charge created:', charge);
       return charge;
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('Payment error:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
