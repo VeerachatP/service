@@ -10,7 +10,9 @@ RUN npm install && npm run postinstall
 
 # Copy client files and build client
 COPY client ./client/
-RUN cd client && npm install && npm run build
+RUN cd client && \
+    npm install --legacy-peer-deps && \
+    CI=true npm run build
 
 # Bundle app source
 COPY . .
@@ -24,6 +26,7 @@ EXPOSE 3001
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3001
+ENV CI=true
 
 # Start the server
 CMD [ "npm", "start" ] 
