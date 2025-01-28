@@ -13,6 +13,18 @@ interface UpgradeModalProps {
   onSuccess: () => void;
 }
 
+interface FormElements extends HTMLFormControlsCollection {
+  name: HTMLInputElement;
+  number: HTMLInputElement;
+  month: HTMLInputElement;
+  year: HTMLInputElement;
+  cvc: HTMLInputElement;
+}
+
+interface UpgradeFormElement extends HTMLFormElement {
+  readonly elements: FormElements;
+}
+
 export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,18 +56,18 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<UpgradeFormElement>) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const form = e.target as HTMLFormElement;
+      const form = e.currentTarget;
       const card = {
-        name: form.name.value,
-        number: form.number.value,
-        expiration_month: form.month.value,
-        expiration_year: form.year.value,
-        security_code: form.cvc.value
+        name: form.elements.name.value,
+        number: form.elements.number.value,
+        expiration_month: form.elements.month.value,
+        expiration_year: form.elements.year.value,
+        security_code: form.elements.cvc.value
       };
 
       window.Omise.setPublicKey(process.env.REACT_APP_OMISE_PUBLIC_KEY!);
@@ -94,7 +106,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
               type="text"
               name="name"
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
             />
           </div>
 
@@ -107,7 +119,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
               name="number"
               required
               pattern="[0-9]{16}"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
             />
           </div>
 
@@ -119,7 +131,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
                 name="month"
                 required
                 pattern="[0-9]{2}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
               />
             </div>
             <div>
@@ -129,7 +141,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
                 name="year"
                 required
                 pattern="[0-9]{2}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
               />
             </div>
             <div>
@@ -139,7 +151,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
                 name="cvc"
                 required
                 pattern="[0-9]{3,4}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
               />
             </div>
           </div>
