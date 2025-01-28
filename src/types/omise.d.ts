@@ -11,6 +11,8 @@ declare module 'omise' {
         card?: string;
         customer?: string;
         description?: string;
+        capture?: boolean;
+        metadata?: Record<string, any>;
       }): Promise<Charge>;
       retrieve(id: string): Promise<Charge>;
     };
@@ -29,6 +31,11 @@ declare module 'omise' {
     currency: string;
     status: string;
     customer: string;
+    metadata: Record<string, any>;
+    paid: boolean;
+    transaction: string;
+    failure_code?: string;
+    failure_message?: string;
   }
 
   interface Customer {
