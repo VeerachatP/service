@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
 import { config } from './config/env';
 import upgradeRoutes from './routes/upgrade';
 import promoRoutes from './routes/promo';
@@ -22,11 +21,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve static files from the React app in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../client/build')));
-}
-
 // Routes
 app.use('/api/v1/upgrade', upgradeRoutes);
 app.use('/api/v1/promo', promoRoutes);
@@ -39,13 +33,6 @@ app.use('/api/*', (req, res) => {
     error: 'API endpoint not found'
   });
 });
-
-// Handle React routing, return all requests to React app
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../client/build', 'index.html'));
-  });
-}
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

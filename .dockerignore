@@ -4,8 +4,4 @@ npm-debug.log
 .gitignore
 .env
 *.md
-client/
-client/node_modules
-client/.git
-client/.env
-client/build 
+client/ 
