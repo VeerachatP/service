@@ -18,7 +18,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize OmiseCard with configuration
     if (window.OmiseCard) {
       window.OmiseCard.configure({
         publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
@@ -28,12 +27,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
         buttonLabel: 'Pay $3.99',
         amount: 399,
         defaultPaymentMethod: 'credit_card',
-        otherPaymentMethods: [],
-        hideAmount: false,
-        requireName: false,
-        requireEmail: false,
-        requireAddress: false,
-        requirePostalCode: false
+        otherPaymentMethods: []
       });
     }
   }, []);
@@ -54,13 +48,17 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
           const response = await axios.post(`${process.env.REACT_APP_API_URL}/upgrade`, {
             token,
             sessionId,
-            return_uri: window.location.origin + '/upgrade/complete'
+            return_uri: `${window.location.origin}/upgrade/complete`
           });
 
           if (response.data.authorizeUri) {
+            // Redirect to 3D Secure authorization page
             window.location.href = response.data.authorizeUri;
           } else if (response.data.success) {
             onSuccess();
+          } else {
+            setError(response.data.error || 'Payment failed');
+            setLoading(false);
           }
         } catch (err) {
           setError('Payment failed. Please try again.');
@@ -113,6 +111,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
             {loading ? 'Processing...' : 'Upgrade Now'}
           </button>
         </div>
+
+        <form id="checkoutForm" method="POST" action="/check.php" className="hidden">
+          <input type="hidden" name="omiseToken" />
+          <input type="hidden" name="omiseSource" />
+        </form>
       </div>
     </div>
   );

@@ -9,30 +9,22 @@ const sessionService = new SessionService();
 
 router.post('/', async (req, res) => {
   try {
-    const { token, sessionId } = req.body;
+    const { token, sessionId, return_uri } = req.body;
 
-    if (!token) {
+    if (!token || !sessionId || !return_uri) {
       return res.status(400).json({
         success: false,
-        error: 'Payment token is required'
+        error: 'Missing required parameters'
       });
     }
 
-    if (!sessionId || !validateSessionId(sessionId)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid session ID'
-      });
-    }
-
-    // Process payment with Omise
     const charge = await paymentService.createCharge({
       token,
-      amount: 399, // $3.99 in cents
+      amount: 399,
       currency: 'usd',
       description: 'Baby Name Generator Pro Subscription',
-      return_uri: req.body.return_uri,
-      capture: false, // Don't capture until 3D Secure is complete
+      return_uri,
+      capture: false,
       metadata: {
         sessionId,
         subscriptionType: 'pro'
@@ -45,40 +37,19 @@ router.post('/', async (req, res) => {
         authorizeUri: charge.authorize_uri
       });
     } else if (charge.paid) {
-      // Upgrade session to premium
       await sessionService.upgradeToPremuim(sessionId);
-      
-      res.json({
-        success: true,
-        data: {
-          charge: {
-            id: charge.id,
-            status: charge.status
-          },
-          subscription: {
-            type: 'pro',
-            expiresIn: 30 * 24 * 60 * 60 // 30 days in seconds
-          }
-        }
-      });
+      res.json({ success: true });
     } else {
       res.status(402).json({
         success: false,
-        error: 'Payment failed',
-        data: {
-          charge: {
-            id: charge.id,
-            status: charge.status,
-            failureMessage: charge.failure_message
-          }
-        }
+        error: charge.failure_message || 'Payment failed'
       });
     }
   } catch (error) {
-    console.error('Upgrade error:', error);
+    console.error('Payment error:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to process upgrade'
+      error: 'Payment processing failed'
     });
   }
 });
@@ -88,22 +59,17 @@ router.get('/complete', async (req, res) => {
     const { chargeId } = req.query;
     
     if (!chargeId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Charge ID is required'
-      });
+      return res.redirect('/upgrade/failed');
     }
 
     const charge = await paymentService.retrieveCharge(chargeId as string);
     
-    if (charge.paid) {
+    if (charge.status === 'successful' && charge.paid) {
       const { sessionId } = charge.metadata;
       await sessionService.upgradeToPremuim(sessionId);
       
-      // Redirect to success page
       res.redirect('/upgrade/success');
     } else {
-      // Redirect to failure page
       res.redirect('/upgrade/failed');
     }
   } catch (error) {
