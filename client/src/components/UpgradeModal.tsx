@@ -19,13 +19,17 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
 
   React.useEffect(() => {
     if (isOpen) {
+      console.log('Omise Config:', {
+        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
+        isConfigured: !!window.OmiseCard
+      });
       window.OmiseCard.configure({
         publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
         image: 'https://service-production-ddb7.up.railway.app/logo.png',
         frameLabel: 'Baby Name Generator Pro',
         submitLabel: 'Pay $9.99',
         buttonLabel: 'Pay $9.99',
-        location: 'no',
+        location: 'yes',
         submitFormTarget: '_self'
       });
     }
@@ -40,24 +44,36 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
       const sessionId = localStorage.getItem('sessionId');
       if (!sessionId) throw new Error('Session not found');
 
+      console.log('Payment Attempt:', {
+        sessionId,
+        hasOmise: !!window.OmiseCard,
+        apiUrl: process.env.REACT_APP_API_URL
+      });
+
       window.OmiseCard.open({
         amount: 999,
         currency: 'USD',
         defaultPaymentMethod: 'credit_card',
         submitFormTarget: '_self',
         onCreateTokenSuccess: async (token: string) => {
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/upgrade`, {
-            token,
-            sessionId
-          });
+          console.log('Token Created:', { token: token.substring(0, 10) + '...' });
+          try {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/upgrade`, {
+              token,
+              sessionId
+            });
+            console.log('Payment Response:', response.data);
 
-          if (response.data.success) {
-            onSuccess();
-          } else if (response.data.authorizeUri) {
-            // Redirect to 3D Secure authentication
-            window.location.href = response.data.authorizeUri;
-          } else {
-            setError(response.data.error || 'Payment failed');
+            if (response.data.success) {
+              onSuccess();
+            } else if (response.data.authorizeUri) {
+              // Redirect to 3D Secure authentication
+              window.location.href = response.data.authorizeUri;
+            } else {
+              setError(response.data.error || 'Payment failed');
+            }
+          } catch (err) {
+            setError('Failed to process payment');
           }
         },
         onFormClosed: () => {
