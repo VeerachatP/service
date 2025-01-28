@@ -24,7 +24,7 @@ app.use(express.json());
 
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../client/build')));
+  app.use(express.static(path.join(__dirname, '../client/build')));
 }
 
 // Routes
@@ -43,7 +43,14 @@ app.use('/api/*', (req, res) => {
 // Handle React routing, return all requests to React app
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../client/build', 'index.html'));
+    const indexPath = path.join(__dirname, '../client/build/index.html');
+    if (!require('fs').existsSync(indexPath)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Client build not found. Please ensure the client is built properly.'
+      });
+    }
+    res.sendFile(indexPath);
   });
 }
 
@@ -62,11 +69,20 @@ const port = config.PORT || 3001;
 const startServer = async () => {
   try {
     // Wait for Redis to be available
-    const redisAvailable = await waitForRedis(10, 3000); // 10 retries, 3 seconds between retries
+    const redisAvailable = await waitForRedis(10, 3000);
     
     if (!redisAvailable) {
       console.error('Could not connect to Redis. Exiting...');
       process.exit(1);
+    }
+
+    // Check for client build in production
+    if (process.env.NODE_ENV === 'production') {
+      const clientBuildPath = path.join(__dirname, '../client/build');
+      if (!require('fs').existsSync(clientBuildPath)) {
+        console.error('Client build directory not found:', clientBuildPath);
+        console.error('Please ensure the client is built properly');
+      }
     }
 
     const server = app.listen(port, () => {

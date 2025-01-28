@@ -5,13 +5,13 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && cd client && npm install && npm run build",
     "dev": "nodemon src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "client:dev": "cd client && npm start",
     "client:build": "cd client && npm run build",
-    "postinstall": "npm install --save-dev @types/express@^4.17.13 @types/node@^18.0.0 @types/ioredis@^5.0.0 @types/bcrypt@^5.0.0 @types/jest@^29.0.0 @types/supertest@^2.0.0"
+    "postinstall": "npm install --save-dev @types/express@^4.17.13 @types/node@^18.0.0 @types/ioredis@^5.0.0 @types/bcrypt@^5.0.0"
   },
   "engines": {
     "node": ">=16.0.0"
