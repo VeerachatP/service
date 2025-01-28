@@ -22,6 +22,8 @@ interface ChargeParams {
   currency: string;
   description?: string;
   metadata?: Record<string, string>;
+  return_uri?: string;
+  capture?: boolean;
 }
 
 export class PaymentService {
