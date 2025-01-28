@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
-    "lib": ["es6"],
+    "lib": ["es6", "dom", "es2017"],
     "allowJs": true,
     "outDir": "dist",
     "rootDir": "src",
@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": [],
+    "moduleResolution": "node",
     "typeRoots": [
       "./node_modules/@types"
     ]
@@ -23,6 +23,7 @@
   "exclude": [
     "node_modules",
     "client",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "dist"
   ]
 } 

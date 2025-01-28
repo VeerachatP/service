@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -7,6 +7,7 @@ import { RedisService } from './services/redis';
 import upgradeRoutes from './routes/upgrade';
 import promoRoutes from './routes/promo';
 import healthRoutes from './routes/health';
+import nameRoutes from './routes/names';
 import { waitForRedis } from './utils/checkRedis';
 
 // Load environment variables
@@ -24,7 +25,7 @@ app.use(cors({
 app.use(express.json());
 
 // Health check endpoint for Railway
-app.get('/health', async (req, res) => {
+app.get('/health', async (req: Request, res: Response) => {
   try {
     // Check Redis connection
     const redis = new RedisService();
@@ -55,6 +56,7 @@ app.get('/health', async (req, res) => {
 app.use('/api/v1/upgrade', upgradeRoutes);
 app.use('/api/v1/promo', promoRoutes);
 app.use('/api/v1/health', healthRoutes);
+app.use('/api/v1/names', nameRoutes);
 
 // Serve static files from React app
 app.use(express.static(path.join(__dirname, '../client/build')));
@@ -73,7 +75,7 @@ app.use('/api/*', (req, res) => {
 });
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,
@@ -83,6 +85,8 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // Start server
 const port = config.PORT || 3001;
+
+let server: ReturnType<typeof app.listen>;
 
 const startServer = async () => {
   try {
@@ -94,7 +98,7 @@ const startServer = async () => {
       process.exit(1);
     }
 
-    const server = app.listen(port, () => {
+    server = app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
 
