@@ -13,13 +13,14 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*"],
+      "@/*": ["src/*"]
     },
     "typeRoots": [
       "./node_modules/@types",
       "./src/types"
     ],
-    "types": ["express", "node"]
+    "types": ["express", "node", "jest"]
   },
   "include": ["src/**/*", "src/types/*.d.ts"],
   "exclude": ["node_modules", "dist", "client"]

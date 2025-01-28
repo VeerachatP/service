@@ -1,6 +1,6 @@
-import { RedisService } from 'src/services/redis';
-import { AdminService } from 'src/services/admin';
-import { TEST_CONFIG } from 'src/config/test';
+import { RedisService } from '../services/redis';
+import { AdminService } from '../services/admin';
+import { TEST_CONFIG } from '../config/test';
 
 export const setupTestEnvironment = async () => {
   const redis = new RedisService();

@@ -5,5 +5,9 @@ export const TEST_CONFIG = {
     username: 'testadmin',
     password: 'testpass123',
     role: 'admin'
+  },
+  OMISE: {
+    PUBLIC_KEY: 'test_public_key',
+    SECRET_KEY: 'test_secret_key'
   }
 }; 
