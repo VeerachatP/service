@@ -20,7 +20,6 @@ export const NameGenerator: React.FC = () => {
     count: 5
   });
   const [remaining, setRemaining] = useState<number | null>(null);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleGenerate = async () => {
     try {
@@ -154,13 +153,6 @@ export const NameGenerator: React.FC = () => {
       {error && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-6 flex flex-col items-center">
           <p className="mb-2">{error}</p>
-          <button
-            onClick={() => setShowUpgradeModal(true)}
-            className="mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-full 
-                     hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all"
-          >
-            Upgrade to Pro 🚀
-          </button>
         </div>
       )}
 
