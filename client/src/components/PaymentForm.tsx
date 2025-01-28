@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { usePayment } from 'src/contexts/PaymentContext';
 import { PRICING } from 'src/config/constants';
+import { API_ENDPOINTS } from '../config/api';
 
 interface PaymentFormProps {
   onSuccess: () => void;
@@ -41,7 +42,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess, onError }) 
 
           try {
             // Send token to your server
-            const serverResponse = await axios.post('/api/upgrade', {
+            const serverResponse = await api.post(API_ENDPOINTS.UPGRADE, {
               omiseToken: response.id,
               promoCode: promoInput || promoCode
             });
