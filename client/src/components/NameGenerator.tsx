@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { generateSessionId } from '../utils/session';
+import { UpgradeModal } from './UpgradeModal';
 
 interface GeneratedName {
   name: string;
@@ -20,6 +21,7 @@ export const NameGenerator: React.FC = () => {
     count: 5
   });
   const [remaining, setRemaining] = useState<number | null>(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const handleGenerate = async () => {
     try {
@@ -154,7 +156,7 @@ export const NameGenerator: React.FC = () => {
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-6 flex flex-col items-center">
           <p className="mb-2">{error}</p>
           <button
-            onClick={() => window.location.href = '/upgrade'}
+            onClick={() => setShowUpgrade(true)}
             className="mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-full 
                      hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all"
           >
@@ -162,6 +164,17 @@ export const NameGenerator: React.FC = () => {
           </button>
         </div>
       )}
+
+      <UpgradeModal
+        isOpen={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        onSuccess={() => {
+          setShowUpgrade(false);
+          setError(null);
+          // Refresh the session status
+          handleGenerate();
+        }}
+      />
 
       {names.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
