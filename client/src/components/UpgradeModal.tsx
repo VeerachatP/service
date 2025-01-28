@@ -19,19 +19,24 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
 
   React.useEffect(() => {
     if (isOpen) {
-      console.log('Omise Config:', {
-        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
-        isConfigured: !!window.OmiseCard
-      });
-      window.OmiseCard.configure({
-        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
-        image: 'https://service-production-ddb7.up.railway.app/logo.png',
-        frameLabel: 'Baby Name Generator Pro',
-        submitLabel: 'Pay $9.99',
-        buttonLabel: 'Pay $9.99',
-        location: 'yes',
-        submitFormTarget: '_self'
-      });
+      // Wait for Omise to be fully loaded
+      const initOmise = () => {
+        if (window.OmiseCard) {
+          window.OmiseCard.configure({
+            publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
+            frameLabel: 'Baby Name Generator Pro',
+            submitLabel: 'Pay $9.99',
+            buttonLabel: 'Pay $9.99',
+            location: 'yes',
+            submitFormTarget: '_self'
+          });
+        } else {
+          // Retry after a short delay
+          setTimeout(initOmise, 100);
+        }
+      };
+
+      initOmise();
     }
   }, [isOpen]);
 

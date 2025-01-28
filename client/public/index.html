@@ -7,11 +7,12 @@
     <meta name="theme-color" content="#000000" />
     <meta http-equiv="Content-Security-Policy" 
           content="default-src 'self' https://service-production-ddb7.up.railway.app https://vault.omise.co;
-                   script-src 'self' 'nonce-omise-js' https://cdn.omise.co https://vault.omise.co;
+                   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.omise.co 'strict-dynamic';
                    style-src 'self' 'unsafe-inline';
                    img-src 'self' data: https:;
-                   connect-src 'self' https://service-production-ddb7.up.railway.app https://vault.omise.co;
-                   frame-src 'self' https://cdn.omise.co https://vault.omise.co;" />
+                   connect-src 'self' https://*.omise.co https://service-production-ddb7.up.railway.app;
+                   frame-src 'self' https://*.omise.co;
+                   worker-src 'self' blob:;" />
     <meta
       name="description"
       content="Baby Name Generator"
