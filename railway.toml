@@ -5,13 +5,14 @@ buildCommand = "npm install && npm run build"
 [deploy]
 startCommand = "npm start"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 5
 
 [service]
 name = "baby-name-service"
 port = 3001
 
 [[plugins]]
-name = "Redis" 
+name = "Redis"
+envs = ["REDIS_URL"] 

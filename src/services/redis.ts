@@ -1,5 +1,6 @@
 import Redis from 'ioredis';
 import { LIMITS } from '../config/constants';
+import { config } from '../config/env';
 
 interface ProStatus {
   isPro: boolean;
@@ -11,28 +12,42 @@ export class RedisService {
   public redis: Redis;
 
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    console.log('Attempting to connect to Redis at:', redisUrl);
+
+    this.redis = new Redis(redisUrl, {
       retryStrategy(times) {
-        const delay = Math.min(times * 50, 2000);
+        const delay = Math.min(times * 500, 5000);
         return delay;
       },
-      maxRetriesPerRequest: 5,
+      maxRetriesPerRequest: 3,
       enableReadyCheck: true,
+      lazyConnect: true,
       reconnectOnError(err) {
-        const targetError = 'READONLY';
-        if (err.message.includes(targetError)) {
-          return true;
-        }
-        return false;
+        console.error('Redis reconnect error:', err);
+        return true;
       }
     });
 
     this.redis.on('error', (error) => {
-      console.error('Redis connection error:', error);
+      console.error('Redis connection error:', {
+        message: error.message,
+        code: error.code,
+        hostname: error.hostname,
+        syscall: error.syscall
+      });
     });
 
     this.redis.on('connect', () => {
       console.log('Connected to Redis');
+    });
+
+    this.redis.on('close', () => {
+      console.log('Redis connection closed');
+    });
+
+    this.redis.on('reconnecting', () => {
+      console.log('Redis reconnecting...');
     });
   }
 

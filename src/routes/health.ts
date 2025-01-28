@@ -10,9 +10,11 @@ router.get('/', async (req, res) => {
     const pingResult = await Promise.race([
       redis.redis.ping(),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Redis ping timeout')), 5000)
+        setTimeout(() => reject(new Error('Redis ping timeout')), 10000)
       )
     ]);
+    
+    console.log('Health check ping result:', pingResult);
     
     res.json({
       status: 'healthy',
@@ -23,7 +25,10 @@ router.get('/', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Health check failed:', error);
+    console.error('Health check failed:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
