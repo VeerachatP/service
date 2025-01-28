@@ -50,17 +50,23 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
       return;
     }
 
+    setLoading(true);
+
     window.OmiseCard.configure({
       publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
       currency: 'usd',
-      image: 'https://your-logo-url.png', // Add your logo URL
+      image: 'https://via.placeholder.com/128', // Placeholder image for now
       frameLabel: 'Baby Name Generator Pro',
       submitLabel: 'Pay $3.99',
-      buttonLabel: 'Pay $3.99'
+      buttonLabel: 'Pay $3.99',
+      defaultPaymentMethod: 'credit_card',
+      otherPaymentMethods: [],
+      amount: 399, // $3.99 in cents
     });
 
     window.OmiseCard.open({
-      amount: 399, // $3.99 in cents
+      frameDescription: 'Monthly Pro Subscription',
+      submitFormTarget: '#omise-form',
       onCreateTokenSuccess: (token: string) => {
         handleUpgrade(token);
       },
@@ -110,6 +116,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
             {loading ? 'Processing...' : 'Upgrade Now'}
           </button>
         </div>
+
+        {/* Add hidden form for Omise */}
+        <form id="omise-form" method="POST" className="hidden">
+          <input type="hidden" name="omiseToken" />
+          <input type="hidden" name="omiseSource" />
+        </form>
       </div>
     </div>
   );

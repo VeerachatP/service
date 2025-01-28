@@ -18,10 +18,20 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: true,
+  origin: [
+    'https://service-production-ddb7.up.railway.app',
+    'http://localhost:3001',
+    'https://vault.omise.co'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Origin', 
+    'Accept',
+    'Omise-Key'
+  ]
 }));
 app.use(express.json());
 

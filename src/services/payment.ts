@@ -77,7 +77,9 @@ export class PaymentService {
         description: params.description,
         metadata: params.metadata,
         capture: true,
-        return_uri: `${config.CLIENT_URL}/upgrade/complete`
+        return_uri: process.env.NODE_ENV === 'production'
+          ? 'https://service-production-ddb7.up.railway.app/upgrade/complete'
+          : 'http://localhost:3001/upgrade/complete'
       });
 
       return charge;
