@@ -20,7 +20,7 @@
       "./node_modules/@types",
       "./src/types"
     ],
-    "types": ["express", "node", "jest"]
+    "types": ["node"]
   },
   "include": ["src/**/*", "src/types/*.d.ts"],
   "exclude": ["node_modules", "dist", "client"]

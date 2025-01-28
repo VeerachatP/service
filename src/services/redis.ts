@@ -8,6 +8,12 @@ interface ProStatus {
   analysesRemaining?: number;
 }
 
+interface RedisError extends Error {
+  code?: string;
+  hostname?: string;
+  syscall?: string;
+}
+
 export class RedisService {
   public redis: Redis;
 
@@ -29,7 +35,7 @@ export class RedisService {
       }
     });
 
-    this.redis.on('error', (error) => {
+    this.redis.on('error', (error: RedisError) => {
       console.error('Redis connection error:', {
         message: error.message,
         code: error.code,
