@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { config } from './config/env';
+import { RedisService } from './services/redis';
 import upgradeRoutes from './routes/upgrade';
 import promoRoutes from './routes/promo';
 import healthRoutes from './routes/health';
@@ -20,6 +21,34 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+
+// Health check endpoint for Railway
+app.get('/health', async (req, res) => {
+  try {
+    // Check Redis connection
+    const redis = new RedisService();
+    await redis.redis.ping();
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        redis: 'connected',
+        api: 'running'
+      }
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        redis: error instanceof Error ? error.message : 'disconnected',
+        api: 'running'
+      }
+    });
+  }
+});
 
 // Routes
 app.use('/api/v1/upgrade', upgradeRoutes);
