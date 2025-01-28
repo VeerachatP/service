@@ -1,0 +1,159 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import { generateSessionId } from '../utils/session';
+
+interface GeneratedName {
+  name: string;
+  meaning?: string;
+  origin?: string;
+}
+
+export const NameGenerator: React.FC = () => {
+  const [names, setNames] = useState<GeneratedName[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [criteria, setCriteria] = useState({
+    gender: 'neutral',
+    style: 'modern',
+    origin: '',
+    startsWith: '',
+    count: 5
+  });
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  const handleGenerate = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get or create session ID from localStorage
+      let sessionId = localStorage.getItem('sessionId');
+      if (!sessionId) {
+        sessionId = generateSessionId();
+        localStorage.setItem('sessionId', sessionId);
+      }
+
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/names/generate`, {
+        ...criteria,
+        sessionId
+      });
+
+      if (response.data.success) {
+        setNames(response.data.data.names);
+        setRemaining(response.data.data.remaining);
+      } else {
+        setError(response.data.error);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate names');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold text-center mb-8">Baby Name Generator</h1>
+      
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Gender
+            </label>
+            <select
+              value={criteria.gender}
+              onChange={(e) => setCriteria({ ...criteria, gender: e.target.value })}
+              className="w-full rounded-md border border-gray-300 p-2"
+            >
+              <option value="neutral">Any</option>
+              <option value="boy">Boy</option>
+              <option value="girl">Girl</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Style
+            </label>
+            <select
+              value={criteria.style}
+              onChange={(e) => setCriteria({ ...criteria, style: e.target.value })}
+              className="w-full rounded-md border border-gray-300 p-2"
+            >
+              <option value="modern">Modern</option>
+              <option value="classic">Classic</option>
+              <option value="unique">Unique</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Origin
+            </label>
+            <input
+              type="text"
+              value={criteria.origin}
+              onChange={(e) => setCriteria({ ...criteria, origin: e.target.value })}
+              placeholder="e.g., French, Japanese, etc."
+              className="w-full rounded-md border border-gray-300 p-2"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Starts With
+            </label>
+            <input
+              type="text"
+              value={criteria.startsWith}
+              onChange={(e) => setCriteria({ ...criteria, startsWith: e.target.value })}
+              placeholder="Enter a letter or prefix"
+              className="w-full rounded-md border border-gray-300 p-2"
+            />
+          </div>
+        </div>
+        
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? 'Generating...' : 'Generate Names'}
+        </button>
+        
+        {remaining !== null && (
+          <p className="text-sm text-gray-600 mt-2">
+            {remaining} generations remaining today
+          </p>
+        )}
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          {error}
+        </div>
+      )}
+
+      {names.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {names.map((name, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-md p-4">
+              <h3 className="text-xl font-semibold mb-2">{name.name}</h3>
+              {name.meaning && (
+                <p className="text-gray-600 text-sm mb-1">
+                  Meaning: {name.meaning}
+                </p>
+              )}
+              {name.origin && (
+                <p className="text-gray-600 text-sm">
+                  Origin: {name.origin}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}; 
