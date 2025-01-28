@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { generateSessionId } from '../utils/session';
+import { UpgradeModal } from './UpgradeModal';
 
 interface GeneratedName {
   name: string;
@@ -12,6 +13,7 @@ export const NameGenerator: React.FC = () => {
   const [names, setNames] = useState<GeneratedName[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [criteria, setCriteria] = useState({
     gender: 'neutral',
     style: 'modern',
@@ -20,6 +22,13 @@ export const NameGenerator: React.FC = () => {
     count: 5
   });
   const [remaining, setRemaining] = useState<number | null>(null);
+
+  const handleUpgradeSuccess = () => {
+    setShowUpgradeModal(false);
+    setError(null);
+    // Refresh remaining generations
+    handleGenerate();
+  };
 
   const handleGenerate = async () => {
     try {
@@ -143,16 +152,31 @@ export const NameGenerator: React.FC = () => {
           {loading ? 'Generating...' : 'Generate Names'}
         </button>
         
-        {remaining !== null && (
-          <p className="text-sm text-gray-600 mt-2">
-            {remaining} generations remaining today
-          </p>
-        )}
+        <div className="flex items-center justify-between mt-2">
+          {remaining !== null && (
+            <p className="text-sm text-gray-600">
+              {remaining} generations remaining today
+            </p>
+          )}
+          <button
+            onClick={() => setShowUpgradeModal(true)}
+            className="text-sm text-purple-600 hover:text-purple-800 font-medium"
+          >
+            Upgrade to Pro ✨
+          </button>
+        </div>
       </div>
 
       {error && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-6 flex flex-col items-center">
           <p className="mb-2">{error}</p>
+          <button
+            onClick={() => setShowUpgradeModal(true)}
+            className="mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-full 
+                     hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all"
+          >
+            Upgrade to Pro 🚀
+          </button>
         </div>
       )}
 
@@ -175,6 +199,12 @@ export const NameGenerator: React.FC = () => {
           ))}
         </div>
       )}
+
+      <UpgradeModal 
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={handleUpgradeSuccess}
+      />
     </div>
   );
 }; 
