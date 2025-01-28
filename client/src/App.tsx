@@ -9,11 +9,11 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Routes>
+        <Route path="/" element={<NameGenerator />} />
         <Route path="/upgrade/complete" element={<UpgradeComplete />} />
         <Route path="/upgrade/success" element={<UpgradeSuccess />} />
         <Route path="/upgrade/failed" element={<UpgradeFailed />} />
       </Routes>
-      <NameGenerator />
     </div>
   );
 }
