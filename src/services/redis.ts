@@ -11,7 +11,29 @@ export class RedisService {
   public redis: Redis;
 
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+    this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+      retryStrategy(times) {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+      maxRetriesPerRequest: 5,
+      enableReadyCheck: true,
+      reconnectOnError(err) {
+        const targetError = 'READONLY';
+        if (err.message.includes(targetError)) {
+          return true;
+        }
+        return false;
+      }
+    });
+
+    this.redis.on('error', (error) => {
+      console.error('Redis connection error:', error);
+    });
+
+    this.redis.on('connect', () => {
+      console.log('Connected to Redis');
+    });
   }
 
   async hmset(key: string, data: Record<string, any>): Promise<void> {

@@ -7,13 +7,18 @@ const redis = new RedisService();
 router.get('/', async (req, res) => {
   try {
     // Check Redis connection
-    await redis.redis.ping();
+    const pingResult = await Promise.race([
+      redis.redis.ping(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Redis ping timeout')), 5000)
+      )
+    ]);
     
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
-        redis: 'connected',
+        redis: pingResult === 'PONG' ? 'connected' : 'degraded',
         api: 'running'
       }
     });
