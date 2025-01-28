@@ -21,7 +21,7 @@ app.use(cors({
   origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
 }));
 app.use(express.json());
 
@@ -54,10 +54,18 @@ app.get('/health', async (req: Request, res: Response) => {
 });
 
 // Routes
-app.use('/api/v1/upgrade', upgradeRoutes);
-app.use('/api/v1/promo', promoRoutes);
-app.use('/api/v1/health', healthRoutes);
-app.use('/api/v1/names', nameRoutes);
+const apiRouter = express.Router();
+apiRouter.use('/upgrade', upgradeRoutes);
+apiRouter.use('/promo', promoRoutes);
+apiRouter.use('/health', healthRoutes);
+apiRouter.use('/names', nameRoutes);
+app.use('/api/v1', apiRouter);
+
+// Add debug logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 // Serve static files from React app
 app.use(express.static(path.join(__dirname, '../client/build')));
@@ -69,6 +77,7 @@ app.get('*', (req, res) => {
 
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {
+  console.log('404 for:', req.method, req.path);
   res.status(404).json({
     success: false,
     error: 'API endpoint not found'

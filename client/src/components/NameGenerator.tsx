@@ -26,17 +26,20 @@ export const NameGenerator: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Get or create session ID from localStorage
+      console.log('API URL:', process.env.REACT_APP_API_URL); // Debug log
+      
       let sessionId = localStorage.getItem('sessionId');
       if (!sessionId) {
         sessionId = generateSessionId();
         localStorage.setItem('sessionId', sessionId);
       }
 
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/names/generate`, {
+      const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/names/generate', {
         ...criteria,
         sessionId
       });
+
+      console.log('Response:', response.data); // Debug log
 
       if (response.data.success) {
         setNames(response.data.data.names);

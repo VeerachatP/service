@@ -7,6 +7,15 @@ const router = express.Router();
 const openAIService = new OpenAIService();
 const sessionService = new SessionService();
 
+// Test endpoint
+router.get('/', (req, res) => {
+  res.json({ message: 'Names API is working' });
+});
+
+router.get('/test', (req, res) => {
+  res.json({ message: 'Names test endpoint is working' });
+});
+
 router.post('/generate', async (req, res) => {
   try {
     const { sessionId, gender, style, origin, startsWith, count } = req.body;
