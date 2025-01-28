@@ -20,7 +20,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
   React.useEffect(() => {
     if (isOpen) {
       window.OmiseCard.configure({
-        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY
+        publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
+        image: 'https://service-production-ddb7.up.railway.app/logo.png',
+        frameLabel: 'Baby Name Generator Pro',
+        submitLabel: 'Pay $9.99',
+        buttonLabel: 'Pay $9.99',
+        location: 'no',
+        submitFormTarget: '_self'
       });
     }
   }, [isOpen]);
@@ -35,30 +41,23 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
       if (!sessionId) throw new Error('Session not found');
 
       window.OmiseCard.open({
-        amount: 999, // $9.99 in cents
+        amount: 999,
         currency: 'USD',
-        frameLabel: 'Baby Name Generator Pro',
-        frameDescription: 'Upgrade to Pro for unlimited generations',
         defaultPaymentMethod: 'credit_card',
+        submitFormTarget: '_self',
         onCreateTokenSuccess: async (token: string) => {
-          try {
-            const response = await axios.post('https://service-production-ddb7.up.railway.app/api/v1/upgrade', {
-              token,
-              sessionId
-            });
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/upgrade`, {
+            token,
+            sessionId
+          });
 
-            if (response.data.success) {
-              onSuccess();
-            } else if (response.data.authorizeUri) {
-              // Redirect to 3D Secure authentication
-              window.location.href = response.data.authorizeUri;
-            } else {
-              setError(response.data.error || 'Payment failed');
-            }
-          } catch (err) {
-            setError('Payment processing failed');
-          } finally {
-            setLoading(false);
+          if (response.data.success) {
+            onSuccess();
+          } else if (response.data.authorizeUri) {
+            // Redirect to 3D Secure authentication
+            window.location.href = response.data.authorizeUri;
+          } else {
+            setError(response.data.error || 'Payment failed');
           }
         },
         onFormClosed: () => {

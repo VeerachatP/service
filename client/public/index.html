@@ -5,13 +5,20 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self' https://service-production-ddb7.up.railway.app https://vault.omise.co;
+                   script-src 'self' 'nonce-omise-js' https://cdn.omise.co https://vault.omise.co;
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data: https:;
+                   connect-src 'self' https://service-production-ddb7.up.railway.app https://vault.omise.co;
+                   frame-src 'self' https://cdn.omise.co https://vault.omise.co;" />
     <meta
       name="description"
       content="Baby Name Generator"
     />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Baby Name Generator</title>
-    <script src="https://cdn.omise.co/omise.js"></script>
+    <script nonce="omise-js" src="https://cdn.omise.co/omise.js"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
