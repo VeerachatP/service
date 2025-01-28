@@ -50,12 +50,20 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
 
     try {
       const form = e.target as HTMLFormElement;
+      const formElements = form.elements as HTMLFormControlsCollection & {
+        name: HTMLInputElement;
+        number: HTMLInputElement;
+        month: HTMLInputElement;
+        year: HTMLInputElement;
+        cvc: HTMLInputElement;
+      };
+      
       const card = {
-        name: form.name.value,
-        number: form.number.value,
-        expiration_month: form.month.value,
-        expiration_year: form.year.value,
-        security_code: form.cvc.value
+        name: formElements.name.value,
+        number: formElements.number.value,
+        expiration_month: formElements.month.value,
+        expiration_year: formElements.year.value,
+        security_code: formElements.cvc.value
       };
 
       window.Omise.setPublicKey(process.env.REACT_APP_OMISE_PUBLIC_KEY!);
