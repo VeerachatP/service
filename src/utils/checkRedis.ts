@@ -1,5 +1,7 @@
 import { RedisService } from '../services/redis';
 
+const backoff = (attempt: number) => Math.min(1000 * Math.pow(2, attempt), 10000);
+
 export const waitForRedis = async (maxRetries = 5, retryInterval = 5000): Promise<boolean> => {
   const redis = new RedisService();
   let retries = 0;
