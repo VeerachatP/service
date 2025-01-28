@@ -52,21 +52,21 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onS
 
     setLoading(true);
 
+    // Initialize Omise
     window.OmiseCard.configure({
       publicKey: process.env.REACT_APP_OMISE_PUBLIC_KEY,
-      currency: 'usd',
-      image: 'https://via.placeholder.com/128', // Placeholder image for now
+      image: 'https://via.placeholder.com/128',
       frameLabel: 'Baby Name Generator Pro',
       submitLabel: 'Pay $3.99',
+      currency: 'USD',
       buttonLabel: 'Pay $3.99',
-      defaultPaymentMethod: 'credit_card',
-      otherPaymentMethods: [],
-      amount: 399, // $3.99 in cents
+      location: 'no',
+      defaultPaymentMethod: 'credit_card'
     });
 
     window.OmiseCard.open({
+      amount: 399,
       frameDescription: 'Monthly Pro Subscription',
-      submitFormTarget: '#omise-form',
       onCreateTokenSuccess: (token: string) => {
         handleUpgrade(token);
       },

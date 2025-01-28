@@ -6,17 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self' https://cdn.omise.co https://vault.omise.co; 
-                   script-src 'self' https://cdn.omise.co 'unsafe-inline' 'unsafe-eval';
-                   style-src 'self' 'unsafe-inline';
-                   frame-src 'self' https://cdn.omise.co https://vault.omise.co;" />
+          content="default-src * data: blob: 'unsafe-inline' 'unsafe-eval';
+                   connect-src * data: blob: 'unsafe-inline';
+                   frame-src * data: blob: 'unsafe-inline';
+                   script-src * data: blob: 'unsafe-inline' 'unsafe-eval';
+                   style-src * data: blob: 'unsafe-inline';" />
     <meta
       name="description"
       content="Baby Name Generator"
     />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Baby Name Generator</title>
-    <script src="https://cdn.omise.co/card.js"></script>
+    <script src="https://cdn.omise.co/omise.js"
+            data-key="<%= process.env.REACT_APP_OMISE_PUBLIC_KEY %>"
+            data-frame-label="Baby Name Generator Pro"
+            data-button-label="Pay $3.99"
+            data-submit-label="Pay $3.99"
+            data-location="no"
+            data-amount="399"
+            data-currency="USD">
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
